@@ -293,6 +293,8 @@ interface FormularioReporte {
             header="Asignar técnico"
         >
             <p-select
+                appendTo="body"
+                appendTo="body"
                 [(ngModel)]="tecnicoSeleccionado"
                 [options]="tecnicosDisponibles"
                 optionLabel="nombre"
@@ -319,6 +321,7 @@ interface FormularioReporte {
         >
             <div class="flex flex-col gap-5">
                 <p-select
+                    appendTo="body"
                     [(ngModel)]="estadoSeleccionado"
                     [options]="estadosGestionables"
                     optionLabel="label"
