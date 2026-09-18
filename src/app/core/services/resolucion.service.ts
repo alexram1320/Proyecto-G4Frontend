@@ -10,7 +10,7 @@ import {
 } from '../models/resolucion.models';
 
 @Injectable({ providedIn: 'root' })
-export class ApagonYaApiService {
+export class ResolucionService {
     constructor(private readonly http: HttpClient) {}
     registrarResolucion(
         reporteId: string,

@@ -8,7 +8,7 @@ import { Confirmacion
 } from '../models/confirmacion.models';
 
 @Injectable({ providedIn: 'root' })
-export class ApagonYaApiService {
+export class ConfirmacionService {
     constructor(private readonly http: HttpClient) {}
 
     listarConfirmaciones(reporteId: string): Observable<RespuestaApi<Confirmacion[]>> {

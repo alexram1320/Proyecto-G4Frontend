@@ -13,7 +13,7 @@ import {
 }from '../models/reporte.models';
 
 @Injectable({ providedIn: 'root' })
-export class ApagonYaApiService {
+export class ReporteService {
     constructor(private readonly http: HttpClient) {}
     listarReportes(filtros: {
         pagina?: number;

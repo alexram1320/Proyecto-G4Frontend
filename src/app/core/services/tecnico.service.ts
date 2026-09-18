@@ -9,7 +9,7 @@ import {
 } from '../models/tecnico.models';
 
 @Injectable({ providedIn: 'root' })
-export class ApagonYaApiService {
+export class TecnicoService {
     constructor(private readonly http: HttpClient) {}
 
     listarTecnicos(): Observable<RespuestaApi<Tecnico[]>> {

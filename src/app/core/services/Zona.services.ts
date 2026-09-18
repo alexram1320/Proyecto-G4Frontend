@@ -11,7 +11,7 @@ import {Zona}
     from '../models/zona.model';
 @Injectable({ providedIn: 'root' })
 
-export class Zonas {
+export class ZonaService {
 
     constructor(private readonly http: HttpClient) {}
 
