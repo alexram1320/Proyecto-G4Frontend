@@ -12,9 +12,9 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { Tecnico } from '@/core/models/tecnico.models';
-import { Zona} from '@/core/models/zona.model';
+import {Zona} from '@/core/models/zona.model';
+import { ZonaService } from '@/core/services/Zona.services';
 import { TecnicoService } from '@/core/services/tecnico.service';
-import { ZonaService} from '@/core/services/Zona.services';
 
 @Component({
     selector: 'app-tecnicos',
@@ -120,11 +120,17 @@ import { ZonaService} from '@/core/services/Zona.services';
                     <label class="block font-semibold mb-2">Nombre</label
                     ><input pInputText [(ngModel)]="tecnicoEditado.nombre" class="w-full" />
                 </div>
+                <div>
+                    <label class="block font-semibold mb-2">Correo</label
+                    ><input pInputText type="email" [(ngModel)]="tecnicoEditado.email" class="w-full" />
+                </div>
+                @if (tecnicoEditado.id) {
+                    <small class="text-muted-color"
+                        >Este correo se usará para iniciar sesión y recibir notificaciones. La contraseña se
+                        conserva.</small
+                    >
+                }
                 @if (!tecnicoEditado.id) {
-                    <div>
-                        <label class="block font-semibold mb-2">Correo</label
-                        ><input pInputText type="email" [(ngModel)]="tecnicoEditado.email" class="w-full" />
-                    </div>
                     <div>
                         <label class="block font-semibold mb-2">Contraseña inicial</label
                         ><p-password
@@ -138,6 +144,7 @@ import { ZonaService} from '@/core/services/Zona.services';
                     <div>
                         <label class="block font-semibold mb-2">Zona</label
                         ><p-select
+                            appendTo="body"
                             [(ngModel)]="tecnicoEditado.zonaId"
                             [options]="zonasActivas"
                             optionLabel="nombre"
@@ -150,6 +157,7 @@ import { ZonaService} from '@/core/services/Zona.services';
                     <div>
                         <label class="block font-semibold mb-2">Disponibilidad inicial</label>
                         <p-select
+                            appendTo="body"
                             [(ngModel)]="tecnicoEditado.disponible"
                             [options]="opcionesDisponibilidad"
                             optionLabel="label"
@@ -167,6 +175,7 @@ import { ZonaService} from '@/core/services/Zona.services';
 
         <p-dialog [(visible)]="dialogoZonaVisible" [modal]="true" [style]="{ width: '28rem' }" header="Asignar zona">
             <p-select
+                appendTo="body"
                 [(ngModel)]="zonaSeleccionada"
                 [options]="zonasActivas"
                 optionLabel="nombre"
@@ -203,8 +212,8 @@ export class TecnicosPage implements OnInit {
 
     constructor(
         private readonly tecnico: TecnicoService,
-        private readonly mensajes: MessageService,
-        private readonly zona: ZonaService
+        private readonly zona: ZonaService,
+        private readonly mensajes: MessageService
     ) {}
 
     ngOnInit(): void {
@@ -247,6 +256,8 @@ export class TecnicosPage implements OnInit {
     guardar(): void {
         const nombre = this.tecnicoEditado.nombre?.trim();
         if (!nombre) return this.advertir('El nombre es obligatorio.');
+        const email = this.tecnicoEditado.email?.trim().toLowerCase() ?? '';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return this.advertir('Ingrese un correo válido.');
         if (
             !this.tecnicoEditado.id &&
             (!this.tecnicoEditado.email?.trim() || this.contrasena.length < 8 || !this.tecnicoEditado.zonaId)
@@ -256,7 +267,7 @@ export class TecnicosPage implements OnInit {
 
         this.guardando = true;
         const operacion = this.tecnicoEditado.id
-            ? this.tecnico.actualizarTecnico(this.tecnicoEditado.id, nombre)
+            ? this.tecnico.actualizarTecnico(this.tecnicoEditado.id, nombre, email)
             : this.tecnico.crearTecnico({
                   nombre,
                   email: this.tecnicoEditado.email?.trim() ?? '',
