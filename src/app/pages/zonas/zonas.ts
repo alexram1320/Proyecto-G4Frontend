@@ -11,6 +11,8 @@ import { TagModule } from 'primeng/tag';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { ApagonYaApiService } from '../../core/services/apagonya-api.service';
+import { Zona } from '@/core/models/zona.model';
+import { ZonaService } from '@/core/services/Zona.services';
 
 @Component({
     selector: 'app-zonas',
@@ -131,8 +133,7 @@ export class ZonasPage implements OnInit {
     constructor(
         private readonly api: ApagonYaApiService,
         private readonly mensajes: MessageService,
-        private readonly zonas: ZonaServices
-
+        private readonly zona: ZonaService
     ) {}
 
     ngOnInit(): void {
@@ -141,7 +142,7 @@ export class ZonasPage implements OnInit {
 
     cargar(): void {
         this.cargando = true;
-        this.api.listarZonas(true).subscribe({
+        this.zona.listarZonas(true).subscribe({
             next: (respuesta) => {
                 this.zonas = respuesta.datos;
                 this.cargando = false;
@@ -171,8 +172,8 @@ export class ZonasPage implements OnInit {
 
         this.guardando = true;
         const operacion = this.zonaEditada.id
-            ? this.api.actualizarZona(this.zonaEditada.id, nombre, descripcion)
-            : this.api.crearZona(nombre, descripcion);
+            ? this.zona.actualizarZona(this.zonaEditada.id, nombre, descripcion)
+            : this.zona.crearZona(nombre, descripcion);
 
         operacion.subscribe({
             next: (respuesta) => {
@@ -186,7 +187,7 @@ export class ZonasPage implements OnInit {
     }
 
     cambiarEstado(zona: Zona): void {
-        this.api.cambiarEstadoZona(zona.id, !zona.activa).subscribe({
+        this.zona.cambiarEstadoZona(zona.id, !zona.activa).subscribe({
             next: (respuesta) => {
                 this.mensajes.add({ severity: 'success', summary: 'Completado', detail: respuesta.mensaje });
                 this.cargar();
