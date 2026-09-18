@@ -11,9 +11,12 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
-import { HorarioCorte, Zona } from '../../core/models/api.models';
 import { ApagonYaApiService } from '../../core/services/apagonya-api.service';
 import { AutenticacionService } from '../../core/services/autenticacion.service';
+import { HorarioCorte } from '@/core/models/HorarioCorte.model';
+import { Zona } from '@/core/models/zona.model';
+import { ZonaService } from '@/core/services/Zona.services';
+import { HorariosServices } from '@/core/services/Horarios.services';
 
 interface FormularioHorario {
     id?: string;
@@ -104,11 +107,13 @@ export class HorariosPage implements OnInit {
     constructor(
         private readonly api: ApagonYaApiService,
         private readonly autenticacion: AutenticacionService,
-        private readonly mensajes: MessageService
+        private readonly mensajes: MessageService,
+        private readonly zona: ZonaService,
+        private readonly horario: HorariosServices
     ) {}
 
     ngOnInit(): void {
-        this.api.listarZonas(this.esAdministrador).subscribe({
+        this.zona.listarZonas(this.esAdministrador).subscribe({
             next: (respuesta) => (this.zonas = respuesta.datos),
             error: (error) => this.mostrarError(error)
         });
@@ -117,7 +122,7 @@ export class HorariosPage implements OnInit {
 
     cargar(): void {
         this.cargando = true;
-        this.api.listarHorarios(this.filtroZona, this.esAdministrador).subscribe({
+        this.horario.listarHorarios(this.filtroZona, this.esAdministrador).subscribe({
             next: (respuesta) => { this.horarios = respuesta.datos; this.cargando = false; },
             error: (error) => this.mostrarError(error)
         });
@@ -160,8 +165,8 @@ export class HorariosPage implements OnInit {
         };
         this.guardando = true;
         const operacion = this.formulario.id
-            ? this.api.actualizarHorario(this.formulario.id, solicitud)
-            : this.api.crearHorario(solicitud);
+            ? this.horario.actualizarHorario(this.formulario.id, solicitud)
+            : this.horario.crearHorario(solicitud);
         operacion.subscribe({
             next: (respuesta) => { this.guardando = false; this.dialogoVisible = false; this.exito(respuesta.mensaje); this.cargar(); },
             error: (error) => this.mostrarError(error)
@@ -169,7 +174,7 @@ export class HorariosPage implements OnInit {
     }
 
     cambiarEstado(horario: HorarioCorte): void {
-        this.api.cambiarEstadoHorario(horario.id, !horario.activo).subscribe({
+        this.horario.cambiarEstadoHorario(horario.id, !horario.activo).subscribe({
             next: (respuesta) => { this.exito(respuesta.mensaje); this.cargar(); },
             error: (error) => this.mostrarError(error)
         });
