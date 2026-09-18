@@ -294,7 +294,6 @@ interface FormularioReporte {
         >
             <p-select
                 appendTo="body"
-                appendTo="body"
                 [(ngModel)]="tecnicoSeleccionado"
                 [options]="tecnicosDisponibles"
                 optionLabel="nombre"
