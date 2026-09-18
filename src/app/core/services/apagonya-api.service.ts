@@ -9,5 +9,5 @@ import {
 @Injectable({ providedIn: 'root' })
 export class ApagonYaApiService {
     constructor(private readonly http: HttpClient) {}
-    // ejemplo SE CREARA UNO POR ENTIDAD
+
 }
