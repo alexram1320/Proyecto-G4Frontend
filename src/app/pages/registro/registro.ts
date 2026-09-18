@@ -10,6 +10,8 @@ import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { ApagonYaApiService } from '../../core/services/apagonya-api.service';
 import { AutenticacionService } from '../../core/services/autenticacion.service';
+import { Zona } from '@/core/models/zona.model';
+import { ZonaService } from '@/core/services/Zona.services';
 
 @Component({
     selector: 'app-registro',
@@ -19,12 +21,77 @@ import { AutenticacionService } from '../../core/services/autenticacion.service'
     template: `
         <p-toast />
         <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen p-6">
-            
+            <div class="card w-full max-w-xl p-8">
+                <div class="text-center mb-8">
+                    <i class="pi pi-bolt text-primary text-4xl"></i>
+                    <h1 class="mb-2">Crear cuenta ciudadana</h1>
+                    <p class="text-muted-color">Registra y confirma cortes en tu zona.</p>
+                </div>
+                <form (ngSubmit)="registrar()" class="flex flex-col gap-5">
+                    <div>
+                        <label for="nombre" class="block font-medium mb-2">Nombre completo</label>
+                        <input id="nombre" pInputText [(ngModel)]="nombre" name="nombre" class="w-full" />
+                    </div>
+                    <div>
+                        <label for="email" class="block font-medium mb-2">Correo</label>
+                        <input id="email" pInputText type="email" [(ngModel)]="email" name="email" class="w-full" />
+                    </div>
+                    <div>
+                        <label for="zona" class="block font-medium mb-2">Zona</label>
+                        <p-select appendTo="body"
+                            inputId="zona"
+                            [(ngModel)]="zonaId"
+                            name="zonaId"
+                            [options]="zonas"
+                            [loading]="cargandoZonas"
+                            [disabled]="cargandoZonas || zonas.length === 0"
+                            optionLabel="nombre"
+                            optionValue="id"
+                            placeholder="Seleccione su zona"
+                            emptyMessage="No hay zonas activas disponibles"
+                            fluid
+                        />
+                        @if (!cargandoZonas && zonas.length === 0) {
+                            <div class="mt-2 text-sm text-orange-600">
+                                {{ errorZonas || 'No hay zonas activas. Un administrador debe registrar una zona antes de crear cuentas ciudadanas.' }}
+                            </div>
+                            <p-button
+                                type="button"
+                                label="Recargar zonas"
+                                icon="pi pi-refresh"
+                                severity="secondary"
+                                [text]="true"
+                                (onClick)="cargarZonas()"
+                            />
+                        }
+                    </div>
+                    <div>
+                        <label for="contrasena" class="block font-medium mb-2">Contraseña</label>
+                        <p-password
+                            inputId="contrasena"
+                            [(ngModel)]="contrasena"
+                            name="contrasena"
+                            [toggleMask]="true"
+                            styleClass="w-full"
+                            inputStyleClass="w-full"
+                        />
+                    </div>
+                    <p-button
+                        type="submit"
+                        label="Crear cuenta"
+                        icon="pi pi-user-plus"
+                        styleClass="w-full"
+                        [loading]="cargando"
+                        [disabled]="cargandoZonas || zonas.length === 0"
+                    />
+                    <a routerLink="/auth/login" class="text-center text-primary no-underline">Volver al inicio de sesión</a>
+                </form>
+            </div>
         </div>
     `
 })
 export class RegistroPage implements OnInit {
-    zonas: undefined;
+    zonas: Zona[] = [];
     nombre = '';
     email = '';
     contrasena = '';
@@ -37,7 +104,8 @@ export class RegistroPage implements OnInit {
         private readonly api: ApagonYaApiService,
         private readonly autenticacion: AutenticacionService,
         private readonly router: Router,
-        private readonly mensajes: MessageService
+        private readonly mensajes: MessageService,
+        private readonly zona : ZonaService
     ) {}
 
     ngOnInit(): void {
@@ -47,7 +115,17 @@ export class RegistroPage implements OnInit {
     cargarZonas(): void {
         this.cargandoZonas = true;
         this.errorZonas = '';
-        
+        this.zona.listarZonas().subscribe({
+            next: (respuesta) => {
+                this.zonas = respuesta.datos.filter((zona) => zona.activa);
+                this.cargandoZonas = false;
+            },
+            error: () => {
+                this.zonas = [];
+                this.cargandoZonas = false;
+                this.errorZonas = 'No se pudieron cargar las zonas. Compruebe que la API esté disponible e inténtelo nuevamente.';
+            }
+        });
     }
 
     registrar(): void {
